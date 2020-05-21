@@ -6,11 +6,10 @@
 #include "emp-tool/utils/constants.h"
 #include <memory>
 
-#ifdef ENABLE_RDSEED
-#include <x86intrin.h>
-#else 
-#include <random>
-#endif
+
+/** @addtogroup BP
+  @{
+ */
 
 namespace emp {
 
@@ -23,24 +22,10 @@ class PRG { public:
 			reseed((const block *)seed, id);
 		} else {
 			block v;
-#ifndef ENABLE_RDSEED
 			uint32_t * data = (uint32_t *)(&v);
 			std::random_device rand_div("/dev/urandom");
 			for (size_t i = 0; i < sizeof(block) / sizeof(uint32_t); ++i)
 				data[i] = rand_div();
-#else
-			unsigned long long r0, r1;
-			int i = 0;
-			for(; i < 10; ++i)
-				if(_rdseed64_step(&r0) == 1) break;
-			if(i == 10)error("RDSEED FAILURE");
-
-			for(i = 0; i < 10; ++i)
-				if(_rdseed64_step(&r1) == 1) break;
-			if(i == 10)error("RDSEED FAILURE");
-
-			v = makeBlock(r0, r1);
-#endif
 			reseed(&v);
 		}
 	}
