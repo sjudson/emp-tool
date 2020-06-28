@@ -174,6 +174,14 @@ inline uint64_t Integer::reveal<uint64_t>(int party) const {
 		bs.set(i, b[i]);
 	return bs.to_ullong();
 }
+
+template<>
+inline bool* Integer::reveal<bool*>(int party) const {
+        bool * b = new bool[length];
+        ProtocolExecution::prot_exec->reveal(b, party, (block *)bits,  length);
+        return b;
+}
+
 template<>
 inline int32_t Integer::reveal<int32_t>(int party) const {
 	return reveal<uint32_t>(party);
